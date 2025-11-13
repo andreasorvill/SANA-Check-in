@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Team Word Cloud</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      background: #f6f6f6;
+    }
+
+    #cloud {
+      width: 90%;
+      margin: 0 auto;
+      height: 80vh;
+    }
+  </style>
+
+  <!-- WordCloud2.js -->
+  <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.2.3/src/wordcloud2.min.js"></script>
+</head>
+
+<body>
+  <h1>Team Weekly Word Cloud</h1>
+  <p>The most frequently selected words appear largest.</p>
+
+  <div id="cloud"></div>
+
+  <script>
+    const DATA_URL = "YOUR_WEB_APP_URL_HERE";  // <--- replace this
+
+    async function loadData() {
+      const response = await fetch(DATA_URL);
+      const entries = await response.json();
+
+      const frequency = {};
+
+      // count words
+      entries.forEach(entry => {
+        entry.words.forEach(word => {
+          word = word.trim();
+          if (word) {
+            frequency[word] = (frequency[word] || 0) + 1;
+          }
+        });
+      });
+
+      // convert to list for wordcloud2.js
+      const wordList = Object.keys(frequency).map(w => [
+        w,
+        frequency[w] * 10 // scaling factor
+      ]);
+
+      WordCloud(document.getElementById("cloud"), {
+        list: wordList,
+        gridSize: 12,
+        weightFactor: 4,
+        color: () => {
+          return "hsl(" + Math.random() * 360 + ", 70%, 50%)"; // random colors
+        },
+        rotateRatio: 0.1,
+        backgroundColor: "#f6f6f6"
+      });
+    }
+
+    loadData();
+  </script>
+</body>
+</html>
