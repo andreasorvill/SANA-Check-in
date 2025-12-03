@@ -34,8 +34,7 @@
     // ORIGINAL URL
     const RAW_API = "https://script.google.com/macros/s/AKfycbwWDyuw9r1IQCWZzGBC2up3pN53X3BpjQRnCDRbZpXsmQ70UYTTjUQQUUXeR80YkqFXTg/exec";
 
-    // CORS-PROXY WRAPPER
-    const DATA_URL = "https://corsproxy.io/?" + encodeURIComponent(RAW_API);
+    const DATA_URL = RAW_API;
 
     async function loadData() {
       try {
