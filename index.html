@@ -94,7 +94,7 @@
       const payload = { name, words: selected, comment };
 
       try {
-        await fetch("https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec", {
+        await fetch("https://script.google.com/macros/s/AKfycbwWDyuw9r1IQCWZzGBC2up3pN53X3BpjQRnCDRbZpXsmQ70UYTTjUQQUUXeR80YkqFXTg/exec", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
