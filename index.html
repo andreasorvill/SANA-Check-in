@@ -1,185 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SANA Weekly Check-In</title>
-
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      margin: 0;
-      padding: 0;
-    }
-
-    /* Theme B — Epiroc */
-    :root {
-      --primary: #FFC423;   /* Epiroc Yellow */
-      --secondary: #003057; /* Epiroc Dark Blue */
-    }
-
-    /* Center wrapper */
-    .center-box {
-      max-width: 400px;
-      margin: 80px auto;
-      padding: 20px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-
-    .logo-large {
-      width: 220px;
-      margin-bottom: 20px;
-    }
-
-    .logo-small {
-      width: 140px;
-      margin: 10px auto;
-      display: none; /* hidden until login */
-    }
-
-    h1 {
-      color: var(--secondary);
-      font-size: 24px;
-      margin-bottom: 15px;
-    }
-
-    input, textarea {
-      width: 100%;
-      padding: 12px;
-      margin-top: 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 16px;
-    }
-
-    button {
-      width: 100%;
-      padding: 14px;
-      margin-top: 20px;
-      border: none;
-      border-radius: 8px;
-      background: var(--primary);
-      color: var(--secondary);
-      font-size: 18px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    button:hover {
-      opacity: 0.9;
-    }
-
-    .word-list {
-      display: none; /* hidden until login */
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .word-item {
-      background: #fff;
-      padding: 10px;
-      border: 1px solid #ccc;
-      text-align: center;
-      cursor: pointer;
-      border-radius: 6px;
-    }
-
-    .word-item.selected {
-      background: var(--primary);
-      color: var(--secondary);
-      border-color: var(--primary);
-      font-weight: bold;
-    }
-
-    #adminButton {
-      display: none;
-      margin-top: 30px;
-      background: var(--secondary);
-      color: white;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
+  <div class="login-container">
+    <img src="images/SANA_Yellow_bkg.png" alt="SANA Logo" class="login-logo">
 
-  <!-- LOGIN SCREEN -->
-  <div id="loginBox" class="center-box">
-    <img src="images/SANA_Yellow_bkg.png" class="logo-large">
-
-    <h1>SANA Weekly Check-In</h1>
-
-    <input type="password" id="password" placeholder="Enter password…" />
-    <button onclick="login()">Log In</button>
+    <div class="login-card">
+      <h1>Weekly Check-In</h1>
+      <input type="text" id="name" placeholder="Your Name (optional)">
+      <input type="password" id="password" placeholder="Enter Password">
+      <button id="loginBtn">Login</button>
+      <p id="loginError" class="error-msg"></p>
+    </div>
   </div>
 
-  <!-- MAIN APP -->
-  <div id="appBox" class="center-box" style="display:none;">
-    <img src="images/SANA_simple.png" class="logo-small" id="smallLogo">
-
-    <h1>Your Weekly Reflection</h1>
-
-    <input id="name" placeholder="Your name (optional)" />
-
-    <p>Select up to <strong>three</strong> words:</p>
+  <div class="checkin-container hidden">
+    <img src="images/SANA_simple.png" alt="SANA Logo" class="small-logo">
+    <h2>Weekly Check-In</h2>
+    <p>Select up to <strong>three</strong> words that describe your week:</p>
 
     <div id="wordContainer" class="word-list"></div>
 
-    <textarea id="comment" placeholder="Add a comment (optional)…"></textarea>
+    <p>Optional comment:</p>
+    <textarea id="comment" placeholder="Write your reflection here..."></textarea>
 
     <button id="submitBtn" disabled>Submit</button>
-
-    <button id="adminButton" onclick="location.href='dashboard.html'">
-      View Word Cloud (Admin)
-    </button>
+    <button id="dashboardBtn" class="admin-only hidden">View Dashboard</button>
   </div>
 
   <script>
-    const USER_PW = "Weekly123!";
-    const ADMIN_PW = "Adminweekly!";
+    const USER_PASSWORD = "Weekly123!";
+    const ADMIN_PASSWORD = "Adminweekly!";
 
-    let isAdmin = false;
+    const loginContainer = document.querySelector(".login-container");
+    const checkinContainer = document.querySelector(".checkin-container");
+    const dashboardBtn = document.getElementById("dashboardBtn");
+    const loginError = document.getElementById("loginError");
 
+    document.getElementById("loginBtn").addEventListener("click", () => {
+      const pw = document.getElementById("password").value.trim();
+      if (pw === USER_PASSWORD || pw === ADMIN_PASSWORD) {
+        loginContainer.classList.add("hidden");
+        checkinContainer.classList.remove("hidden");
+        if (pw === ADMIN_PASSWORD) {
+          dashboardBtn.classList.remove("hidden");
+        }
+      } else {
+        loginError.textContent = "Incorrect password";
+      }
+    });
+
+    // Word selection logic
     const words = [
       "Stressed", "Satisfied", "Bored", "Motivated", "Tired",
       "Inspired", "Frustrated", "Happy", "Pressured", "Calm",
       "Hopeful", "Grateful", "Productive", "Confused", "Focused",
       "Excited", "Defeated", "Content"
     ];
-
-    function login() {
-      const pw = document.getElementById("password").value;
-
-      if (pw === USER_PW) {
-        isAdmin = false;
-        startApp();
-      } else if (pw === ADMIN_PW) {
-        isAdmin = true;
-        startApp();
-      } else {
-        alert("Wrong password.");
-      }
-    }
-
-    function startApp() {
-      document.getElementById("loginBox").style.display = "none";
-      document.getElementById("appBox").style.display = "block";
-
-      document.getElementById("smallLogo").style.display = "block";
-      document.getElementById("wordContainer").style.display = "grid";
-
-      if (isAdmin) {
-        document.getElementById("adminButton").style.display = "block";
-      }
-    }
-
     const container = document.getElementById("wordContainer");
-    const button = document.getElementById("submitBtn");
-
+    const submitBtn = document.getElementById("submitBtn");
     let selected = [];
 
     words.forEach(word => {
@@ -191,43 +75,41 @@
         if (selected.includes(word)) {
           selected = selected.filter(w => w !== word);
           div.classList.remove("selected");
-        } else if (selected.length < 3) {
-          selected.push(word);
-          div.classList.add("selected");
+        } else {
+          if (selected.length < 3) {
+            selected.push(word);
+            div.classList.add("selected");
+          }
         }
-        button.disabled = selected.length === 0;
+        submitBtn.disabled = selected.length === 0;
       });
 
       container.appendChild(div);
     });
 
-    document.getElementById("submitBtn").addEventListener("click", async () => {
+    submitBtn.addEventListener("click", async () => {
+      const name = document.getElementById("name").value.trim();
       const comment = document.getElementById("comment").value;
-      const name = document.getElementById("name").value;
 
-      const payload = {
-        name,
-        words: selected,
-        comment
-      };
+      const payload = { name, words: selected, comment };
 
       try {
-        await fetch("https://script.google.com/macros/s/AKfycbwWDyuw9r1IQCWZzGBC2up3pN53X3BpjQRnCDRbZpXsmQ70UYTTjUQQUUXeR80YkqFXTg/exec", {
+        await fetch("https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
         });
-
         alert("Thank you! Your check-in has been submitted.");
         window.location.reload();
-
-      } catch (e) {
-        alert("Error sending data.");
-        console.error(e);
+      } catch (err) {
+        console.error("Submit error:", err);
+        alert("Something went wrong submitting the form.");
       }
     });
-  </script>
 
+    dashboardBtn.addEventListener("click", () => {
+      window.location.href = "dashboard.html";
+    });
+  </script>
 </body>
 </html>
-
