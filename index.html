@@ -1,273 +1,263 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>SANA — Team Weekly Check-in</title>
-<style>
-  :root{
-    --epi-yellow:#FFCD00;
-    --epi-blue:#002A3A;
-    --bg:#071724; /* deep dark blue */
-    --card:#0e2a36;
-    --muted:#9fb6be;
-    --accent:var(--epi-yellow);
-  }
-  html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:#e6f6f8;}
-  .wrap{max-width:920px;margin:28px auto;padding:22px;}
-  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:20px;box-shadow:0 6px 24px rgba(0,0,0,0.45);border:1px solid rgba(255,255,255,0.03)}
-  .brand{display:flex;gap:18px;align-items:center;margin-bottom:18px}
-  .logo{width:92px;height:92px;flex:0 0 92px;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--accent)}
-  .logo img{width:100%;height:100%;object-fit:contain;display:block}
-  h1{font-size:28px;margin:0;color:var(--epi-yellow);letter-spacing:0.5px}
-  p.lead{color:var(--muted);margin:6px 0 18px}
-  /* login */
-  .login-grid{display:flex;gap:16px;align-items:center}
-  .input{width:100%;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#e6f6f8;font-size:15px}
-  .btn{display:inline-block;padding:10px 14px;border-radius:9px;background:var(--epi-yellow);color:var(--epi-blue);border:none;font-weight:600;cursor:pointer}
-  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
-  .center{text-align:center}
-  .small{font-size:13px;color:var(--muted)}
-  /* checkin */
-  .word-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
-  .word{padding:10px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);cursor:pointer;text-align:center}
-  .word.selected{background:var(--epi-yellow);color:var(--epi-blue);border-color:var(--epi-yellow);font-weight:700}
-  textarea{width:100%;min-height:108px;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#e6f6f8}
-  label{display:block;margin-top:12px;color:var(--muted);font-size:13px}
-  .row{display:flex;gap:12px}
-  .row .col{flex:1}
-  .meta{display:flex;gap:8px;align-items:center;margin-top:12px}
-  .link-btn{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--epi-yellow);padding:8px 12px;border-radius:8px;cursor:pointer}
-  .footer{margin-top:14px;color:var(--muted);font-size:13px}
-  @media(max-width:720px){.word-grid{grid-template-columns:repeat(2,1fr)}.brand{flex-direction:column;align-items:flex-start}.logo{width:72px;height:72px}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SANA Check-In</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+    }
+
+    .page {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+    }
+
+    /* LOGIN PAGE --------------------------------------------------- */
+
+    #loginPage {
+      padding-top: 50px;
+    }
+
+    #bigLogo {
+      width: 260px;
+      max-width: 90%;
+      margin-bottom: 30px;
+    }
+
+    input[type="password"],
+    input[type="text"] {
+      width: 90%;
+      padding: 12px;
+      margin-top: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #aaa;
+    }
+
+    #loginBtn {
+      margin-top: 20px;
+      width: 90%;
+      padding: 12px;
+      background: #005691; /* Epiroc deep blue */
+      border: none;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+
+    /* MAIN PAGE --------------------------------------------------- */
+
+    #mainPage {
+      display: none;
+    }
+
+    #topIcon {
+      width: 60px;
+      margin: 20px auto;
+      display: block;
+    }
+
+    h1 {
+      color: #005691;
+      margin-bottom: 10px;
+    }
+
+    .word-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .word-item {
+      background: white;
+      padding: 12px;
+      border: 1px solid #bbb;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .word-item.selected {
+      background: #ffc400;   /* Epiroc yellow highlight */
+      border-color: #ffc400;
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      padding: 10px;
+      margin-top: 15px;
+      font-size: 15px;
+      border-radius: 6px;
+      border: 1px solid #bbb;
+      resize: vertical;
+    }
+
+    button.main-btn {
+      margin-top: 20px;
+      width: 100%;
+      padding: 14px;
+      background: #005691;
+      border: none;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+
+    button.main-btn:disabled {
+      background: #999;
+      cursor: not-allowed;
+    }
+
+    #adminBtn {
+      margin-top: 15px;
+      background: #333;
+    }
+  </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <div class="card" id="mainCard">
-      <div class="brand">
-        <div class="logo"><img src="./SANA_Yellow_bkg.png" alt="SANA logo" id="logoImg"></div>
-        <div>
-          <h1>SANA</h1>
-          <p class="lead">Scan And Navigate Attitude — Team weekly check-in</p>
-          <div class="small">Powered by EES R&D Product team, Örebro</div>
-        </div>
-      </div>
 
-      <!-- LOGIN -->
-      <div id="loginView">
-        <label class="small">Enter password to continue</label>
-        <div style="display:flex;gap:12px;margin-top:8px;align-items:center">
-          <input id="pwField" class="input" type="password" placeholder="Password (user or admin)"/>
-          <button id="pwBtn" class="btn">Unlock</button>
-        </div>
-        <div class="meta" style="margin-top:10px">
-          <div class="small">Use the user password to submit. Use the admin password to view the word cloud.</div>
-        </div>
-      </div>
+  <!-- ---------------- LOGIN PAGE ---------------- -->
+  <div id="loginPage" class="page">
+    <img id="bigLogo" src="/SANA_Yellow_bkg.png" alt="SANA Logo">
 
-      <!-- CHECK-IN (hidden until login) -->
-      <div id="checkinView" style="display:none">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div>
-            <label class="small">Name</label>
-            <input id="nameField" class="input" type="text" placeholder="Your name (required)"/>
-          </div>
-          <div style="text-align:right">
-            <label class="small">Session</label>
-            <div style="margin-top:6px">
-              <button id="logoutBtn" class="btn ghost">Logout</button>
-            </div>
-          </div>
-        </div>
+    <h2>Welcome to SANA Check-In</h2>
+    <p>Please enter your password</p>
 
-        <label class="small">Select up to <strong>three</strong> words that describe your week</label>
-        <div id="wordGrid" class="word-grid"></div>
+    <input id="nameInput" placeholder="Name (optional)">
+    <br>
+    <input id="passwordInput" type="password" placeholder="Password">
 
-        <label class="small">Optional comment</label>
-        <textarea id="commentField" placeholder="Write a short reflection..."></textarea>
-
-        <div style="display:flex;gap:12px;margin-top:12px;align-items:center">
-          <button id="submitBtn" class="btn" disabled>Submit</button>
-          <button id="gotoCloudBtn" class="link-btn" style="display:none">Open Word Cloud (admin)</button>
-        </div>
-
-        <div class="footer">Tip: You will remain signed in for this browser session. Use Logout to switch user.</div>
-      </div>
-
-    </div>
+    <button id="loginBtn">Login</button>
   </div>
 
-<script>
-/* -------- CONFIG - update as needed -------- */
-const API_URL = "https://script.google.com/macros/s/AKfycbwWDyuw9r1IQCWZzGBC2up3pN53X3BpjQRnCDRbZpXsmQ70UYTTjUQQUUXeR80YkqFXTg/exec"; // your apps script
-const USER_PW = "Weekly123!";
-const ADMIN_PW = "Adminweekly!";
-const DASHBOARD_PATH = "dashboard.html"; // relative link (GitHub Pages) - adjust if different
-/* -------- end config -------- */
+  <!-- ---------------- MAIN PAGE ---------------- -->
+  <div id="mainPage" class="page">
+    <img id="topIcon" src="/SANA_simple.png" alt="SANA icon">
 
-const WORDS = [
-  "Stressed","Satisfied","Bored","Motivated","Tired",
-  "Inspired","Frustrated","Happy","Pressured","Calm",
-  "Hopeful","Grateful","Productive","Confused","Focused",
-  "Excited","Defeated","Content"
-];
+    <h1>Your Weekly Check-In</h1>
+    <p>Select up to three words that describe your week:</p>
 
-const pwField = document.getElementById('pwField');
-const pwBtn   = document.getElementById('pwBtn');
-const loginView = document.getElementById('loginView');
-const checkinView = document.getElementById('checkinView');
-const wordGrid = document.getElementById('wordGrid');
-const submitBtn = document.getElementById('submitBtn');
-const gotoCloudBtn = document.getElementById('gotoCloudBtn');
-const nameField = document.getElementById('nameField');
-const commentField = document.getElementById('commentField');
-const logoutBtn = document.getElementById('logoutBtn');
+    <div id="wordContainer" class="word-list"></div>
 
-/* session role: "none" | "user" | "admin" */
-let sessionRole = sessionStorage.getItem('sana_role') || 'none';
-let selected = [];
+    <p>Optional comment:</p>
+    <textarea id="comment" placeholder="Write your reflection..."></textarea>
 
-/* build words grid */
-function renderWords(){
-  wordGrid.innerHTML = '';
-  WORDS.forEach(w => {
-    const d = document.createElement('div');
-    d.className = 'word';
-    d.textContent = w;
-    d.addEventListener('click', () => toggleWord(w,d));
-    wordGrid.appendChild(d);
-  });
-}
+    <button id="submitBtn" class="main-btn" disabled>Submit</button>
 
-/* toggle selection */
-function toggleWord(word, el){
-  if(selected.includes(word)){
-    selected = selected.filter(x => x !== word);
-    el.classList.remove('selected');
-  } else {
-    if(selected.length < 3){
-      selected.push(word);
-      el.classList.add('selected');
-    } else {
-      // simple feedback
-      el.animate([{transform:'translateY(-4px)'},{transform:'translateY(0)'}],{duration:180});
-    }
-  }
-  validateForm();
-}
+    <button id="adminBtn" class="main-btn" style="display:none;">
+      Admin: View Word Cloud
+    </button>
+  </div>
 
-/* validate form */
-function validateForm(){
-  const hasName = !!nameField.value.trim();
-  submitBtn.disabled = !(hasName && selected.length > 0);
-}
+  <!-- ---------------- SCRIPT ---------------- -->
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbwWDyuw9r1IQCWZzGBC2up3pN53X3BpjQRnCDRbZpXsmQ70UYTTjUQQUUXeR80YkqFXTg/exec";
 
-/* login handling */
-function unlock(pw){
-  if(pw === ADMIN_PW){
-    sessionRole = 'admin';
-    sessionStorage.setItem('sana_role', 'admin');
-    showCheckin();
-  } else if(pw === USER_PW){
-    sessionRole = 'user';
-    sessionStorage.setItem('sana_role', 'user');
-    showCheckin();
-  } else {
-    alert('Wrong password');
-  }
-}
+    const USER_PW = "Weekly123!";
+    const ADMIN_PW = "Adminweekly!";
 
-/* show checkin view depending on role */
-function showCheckin(){
-  loginView.style.display = 'none';
-  checkinView.style.display = 'block';
-  renderWords();
-  // admin gets link to cloud
-  if(sessionRole === 'admin'){
-    gotoCloudBtn.style.display = 'inline-block';
-  } else {
-    gotoCloudBtn.style.display = 'none';
-  }
-}
+    let isAdmin = false;
+    let selected = [];
 
-/* logout */
-logoutBtn.addEventListener('click', () => {
-  sessionStorage.removeItem('sana_role');
-  sessionRole = 'none';
-  selected = [];
-  // reset fields
-  nameField.value = '';
-  commentField.value = '';
-  pwField.value = '';
-  loginView.style.display = 'block';
-  checkinView.style.display = 'none';
-});
+    const words = [
+      "Stressed", "Satisfied", "Bored", "Motivated", "Tired",
+      "Inspired", "Frustrated", "Happy", "Pressured", "Calm",
+      "Hopeful", "Grateful", "Productive", "Confused", "Focused",
+      "Excited", "Defeated", "Content"
+    ];
 
-/* unlock button */
-pwBtn.addEventListener('click', () => {
-  unlock(pwField.value.trim());
-});
+    // LOGIN ------------------------------------------------------
+    document.getElementById("loginBtn").addEventListener("click", () => {
+      const pw = document.getElementById("passwordInput").value;
 
-/* allow enter key on password */
-pwField.addEventListener('keydown', e => { if(e.key === 'Enter') unlock(pwField.value.trim()); });
-
-/* submit button */
-submitBtn.addEventListener('click', async () => {
-  const name = nameField.value.trim();
-  const comment = commentField.value.trim();
-
-  if(!name){ alert('Please enter your name'); return; }
-  if(selected.length === 0){ alert('Choose at least one word'); return; }
-
-  const payload = { name, words: selected, comment };
-
-  try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(payload)
+      if (pw === USER_PW) {
+        isAdmin = false;
+        startApp();
+      } else if (pw === ADMIN_PW) {
+        isAdmin = true;
+        startApp();
+      } else {
+        alert("Incorrect password");
+      }
     });
 
-    if(!res.ok){
-      console.error('Server returned', res.status, await res.text());
-      alert('Server error: ' + res.status);
-      return;
+    function startApp() {
+      document.getElementById("loginPage").style.display = "none";
+      document.getElementById("mainPage").style.display = "block";
+
+      if (isAdmin) {
+        document.getElementById("adminBtn").style.display = "block";
+      }
+
+      renderWords();
     }
 
-    // success
-    alert('Thanks — your check-in has been recorded.');
-    // simple reset
-    selected = [];
-    renderWords();
-    nameField.value = '';
-    commentField.value = '';
-    submitBtn.disabled = true;
+    // RENDER WORDS ------------------------------------------------
+    function renderWords() {
+      const container = document.getElementById("wordContainer");
+      container.innerHTML = "";
 
-  } catch (err){
-    console.error('Submit failed', err);
-    alert('Network error submitting the form.');
-  }
-});
+      words.forEach(word => {
+        const div = document.createElement("div");
+        div.className = "word-item";
+        div.innerText = word;
 
-/* goto cloud button - only visible for admin */
-gotoCloudBtn.addEventListener('click', () => {
-  // open dashboard in new tab
-  window.open(DASHBOARD_PATH, '_blank');
-});
+        div.addEventListener("click", () => {
+          if (selected.includes(word)) {
+            selected = selected.filter(w => w !== word);
+            div.classList.remove("selected");
+          } else {
+            if (selected.length < 3) {
+              selected.push(word);
+              div.classList.add("selected");
+            }
+          }
+          document.getElementById("submitBtn").disabled = selected.length === 0;
+        });
 
-/* init on load */
-(function init(){
-  if(sessionRole === 'admin' || sessionRole === 'user'){
-    showCheckin();
-  } else {
-    loginView.style.display = 'block';
-    checkinView.style.display = 'none';
-  }
-  // small safety: hide logo image if missing
-  const img = document.getElementById('logoImg');
-  img.onerror = ()=> img.style.display = 'none';
-})();
-</script>
+        container.appendChild(div);
+      });
+    }
+
+    // SUBMIT ------------------------------------------------------
+    document.getElementById("submitBtn").addEventListener("click", async () => {
+      const name = document.getElementById("nameInput").value || "";
+      const comment = document.getElementById("comment").value;
+
+      const payload = { name, words: selected, comment };
+
+      try {
+        await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        alert("Thank you! Your check-in is submitted.");
+        window.location.reload();
+      } catch (err) {
+        console.error(err);
+        alert("Error submitting your check-in.");
+      }
+    });
+
+    // ADMIN BUTTON ------------------------------------------------
+    document.getElementById("adminBtn").addEventListener("click", () => {
+      window.location.href = "dashboard.html";
+    });
+  </script>
+
 </body>
 </html>
