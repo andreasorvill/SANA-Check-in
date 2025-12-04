@@ -3,173 +3,146 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SANA Check-In</title>
+  <title>SANA Weekly Check-In</title>
 
   <style>
     body {
-      margin: 0;
       font-family: Arial, sans-serif;
       background: #f4f4f4;
+      margin: 0;
+      padding: 0;
     }
 
-    .page {
-      max-width: 600px;
-      margin: 0 auto;
+    /* Theme B — Epiroc */
+    :root {
+      --primary: #FFC423;   /* Epiroc Yellow */
+      --secondary: #003057; /* Epiroc Dark Blue */
+    }
+
+    /* Center wrapper */
+    .center-box {
+      max-width: 400px;
+      margin: 80px auto;
       padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
       text-align: center;
     }
 
-    /* LOGIN PAGE --------------------------------------------------- */
-
-    #loginPage {
-      padding-top: 50px;
+    .logo-large {
+      width: 220px;
+      margin-bottom: 20px;
     }
 
-    #bigLogo {
-      width: 260px;
-      max-width: 90%;
-      margin-bottom: 30px;
-    }
-
-    input[type="password"],
-    input[type="text"] {
-      width: 90%;
-      padding: 12px;
-      margin-top: 10px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: 1px solid #aaa;
-    }
-
-    #loginBtn {
-      margin-top: 20px;
-      width: 90%;
-      padding: 12px;
-      background: #005691; /* Epiroc deep blue */
-      border: none;
-      color: white;
-      font-size: 18px;
-      cursor: pointer;
-      border-radius: 8px;
-    }
-
-    /* MAIN PAGE --------------------------------------------------- */
-
-    #mainPage {
-      display: none;
-    }
-
-    #topIcon {
-      width: 60px;
-      margin: 20px auto;
-      display: block;
+    .logo-small {
+      width: 140px;
+      margin: 10px auto;
+      display: none; /* hidden until login */
     }
 
     h1 {
-      color: #005691;
-      margin-bottom: 10px;
+      color: var(--secondary);
+      font-size: 24px;
+      margin-bottom: 15px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 8px;
+      background: var(--primary);
+      color: var(--secondary);
+      font-size: 18px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      opacity: 0.9;
     }
 
     .word-list {
-      display: grid;
+      display: none; /* hidden until login */
       grid-template-columns: repeat(2, 1fr);
       gap: 10px;
       margin-bottom: 20px;
     }
 
     .word-item {
-      background: white;
-      padding: 12px;
-      border: 1px solid #bbb;
-      border-radius: 6px;
+      background: #fff;
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: center;
       cursor: pointer;
-      font-size: 16px;
+      border-radius: 6px;
     }
 
     .word-item.selected {
-      background: #ffc400;   /* Epiroc yellow highlight */
-      border-color: #ffc400;
+      background: var(--primary);
+      color: var(--secondary);
+      border-color: var(--primary);
+      font-weight: bold;
     }
 
-    textarea {
-      width: 100%;
-      height: 120px;
-      padding: 10px;
-      margin-top: 15px;
-      font-size: 15px;
-      border-radius: 6px;
-      border: 1px solid #bbb;
-      resize: vertical;
-    }
-
-    button.main-btn {
-      margin-top: 20px;
-      width: 100%;
-      padding: 14px;
-      background: #005691;
-      border: none;
+    #adminButton {
+      display: none;
+      margin-top: 30px;
+      background: var(--secondary);
       color: white;
-      font-size: 18px;
-      cursor: pointer;
-      border-radius: 8px;
-    }
-
-    button.main-btn:disabled {
-      background: #999;
-      cursor: not-allowed;
-    }
-
-    #adminBtn {
-      margin-top: 15px;
-      background: #333;
     }
   </style>
 </head>
 
 <body>
 
-  <!-- ---------------- LOGIN PAGE ---------------- -->
-  <div id="loginPage" class="page">
-    <img id="bigLogo" src="images/SANA_Yellow_bkg.png" alt="SANA Logo">
+  <!-- LOGIN SCREEN -->
+  <div id="loginBox" class="center-box">
+    <img src="images/SANA_Yellow_bkg.png" class="logo-large">
 
-    <h2>Welcome to SANA Check-In</h2>
-    <p>Please enter your password</p>
+    <h1>SANA Weekly Check-In</h1>
 
-    <input id="nameInput" placeholder="Name (optional)">
-    <br>
-    <input id="passwordInput" type="password" placeholder="Password">
-
-    <button id="loginBtn">Login</button>
+    <input type="password" id="password" placeholder="Enter password…" />
+    <button onclick="login()">Log In</button>
   </div>
 
-  <!-- ---------------- MAIN PAGE ---------------- -->
-  <div id="mainPage" class="page">
-    <img id="topIcon" src="images/SANA_simple.png" alt="SANA icon">
+  <!-- MAIN APP -->
+  <div id="appBox" class="center-box" style="display:none;">
+    <img src="images/SANA_simple.png" class="logo-small" id="smallLogo">
 
-    <h1>Your Weekly Check-In</h1>
-    <p>Select up to three words that describe your week:</p>
+    <h1>Your Weekly Reflection</h1>
+
+    <input id="name" placeholder="Your name (optional)" />
+
+    <p>Select up to <strong>three</strong> words:</p>
 
     <div id="wordContainer" class="word-list"></div>
 
-    <p>Optional comment:</p>
-    <textarea id="comment" placeholder="Write your reflection..."></textarea>
+    <textarea id="comment" placeholder="Add a comment (optional)…"></textarea>
 
-    <button id="submitBtn" class="main-btn" disabled>Submit</button>
+    <button id="submitBtn" disabled>Submit</button>
 
-    <button id="adminBtn" class="main-btn" style="display:none;">
-      Admin: View Word Cloud
+    <button id="adminButton" onclick="location.href='dashboard.html'">
+      View Word Cloud (Admin)
     </button>
   </div>
 
-  <!-- ---------------- SCRIPT ---------------- -->
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbwWDyuw9r1IQCWZzGBC2up3pN53X3BpjQRnCDRbZpXsmQ70UYTTjUQQUUXeR80YkqFXTg/exec";
-
     const USER_PW = "Weekly123!";
     const ADMIN_PW = "Adminweekly!";
 
     let isAdmin = false;
-    let selected = [];
 
     const words = [
       "Stressed", "Satisfied", "Bored", "Motivated", "Tired",
@@ -178,9 +151,8 @@
       "Excited", "Defeated", "Content"
     ];
 
-    // LOGIN ------------------------------------------------------
-    document.getElementById("loginBtn").addEventListener("click", () => {
-      const pw = document.getElementById("passwordInput").value;
+    function login() {
+      const pw = document.getElementById("password").value;
 
       if (pw === USER_PW) {
         isAdmin = false;
@@ -189,75 +161,73 @@
         isAdmin = true;
         startApp();
       } else {
-        alert("Incorrect password");
+        alert("Wrong password.");
       }
-    });
+    }
 
     function startApp() {
-      document.getElementById("loginPage").style.display = "none";
-      document.getElementById("mainPage").style.display = "block";
+      document.getElementById("loginBox").style.display = "none";
+      document.getElementById("appBox").style.display = "block";
+
+      document.getElementById("smallLogo").style.display = "block";
+      document.getElementById("wordContainer").style.display = "grid";
 
       if (isAdmin) {
-        document.getElementById("adminBtn").style.display = "block";
+        document.getElementById("adminButton").style.display = "block";
       }
-
-      renderWords();
     }
 
-    // RENDER WORDS ------------------------------------------------
-    function renderWords() {
-      const container = document.getElementById("wordContainer");
-      container.innerHTML = "";
+    const container = document.getElementById("wordContainer");
+    const button = document.getElementById("submitBtn");
 
-      words.forEach(word => {
-        const div = document.createElement("div");
-        div.className = "word-item";
-        div.innerText = word;
+    let selected = [];
 
-        div.addEventListener("click", () => {
-          if (selected.includes(word)) {
-            selected = selected.filter(w => w !== word);
-            div.classList.remove("selected");
-          } else {
-            if (selected.length < 3) {
-              selected.push(word);
-              div.classList.add("selected");
-            }
-          }
-          document.getElementById("submitBtn").disabled = selected.length === 0;
-        });
+    words.forEach(word => {
+      const div = document.createElement("div");
+      div.className = "word-item";
+      div.innerText = word;
 
-        container.appendChild(div);
+      div.addEventListener("click", () => {
+        if (selected.includes(word)) {
+          selected = selected.filter(w => w !== word);
+          div.classList.remove("selected");
+        } else if (selected.length < 3) {
+          selected.push(word);
+          div.classList.add("selected");
+        }
+        button.disabled = selected.length === 0;
       });
-    }
 
-    // SUBMIT ------------------------------------------------------
+      container.appendChild(div);
+    });
+
     document.getElementById("submitBtn").addEventListener("click", async () => {
-      const name = document.getElementById("nameInput").value || "";
       const comment = document.getElementById("comment").value;
+      const name = document.getElementById("name").value;
 
-      const payload = { name, words: selected, comment };
+      const payload = {
+        name,
+        words: selected,
+        comment
+      };
 
       try {
-        await fetch(API_URL, {
+        await fetch("https://script.google.com/macros/s/AKfycbwWDyuw9r1IQCWZzGBC2up3pN53X3BpjQRnCDRbZpXsmQ70UYTTjUQQUUXeR80YkqFXTg/exec", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
 
-        alert("Thank you! Your check-in is submitted.");
+        alert("Thank you! Your check-in has been submitted.");
         window.location.reload();
-      } catch (err) {
-        console.error(err);
-        alert("Error submitting your check-in.");
-      }
-    });
 
-    // ADMIN BUTTON ------------------------------------------------
-    document.getElementById("adminBtn").addEventListener("click", () => {
-      window.location.href = "dashboard.html";
+      } catch (e) {
+        alert("Error sending data.");
+        console.error(e);
+      }
     });
   </script>
 
 </body>
 </html>
+
