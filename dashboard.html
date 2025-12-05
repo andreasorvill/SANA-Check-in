@@ -28,13 +28,14 @@
 
   </div>
 
-  <script>
+  <script type="module">
 const RAW_API =
   "https://script.google.com/macros/s/AKfycbwWDyuw9r1IQCWZzGBC2up3pN53X3BpjQRnCDRbZpXsmQ70UYTTjUQQUUXeR80YkqFXTg/exec";
 
 const DATA_URL =
   "https://sana-cors-proxy.andreas-orvill.workers.dev/?url=" +
-  encodeURIComponent(RAW_API);
+  encodeURIComponent(RAW_API) +
+  "&t=" + Date.now();   // Cache-buster
 
 
     async function loadData() {
