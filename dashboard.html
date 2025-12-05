@@ -55,7 +55,7 @@
     <h1 class="dashboard-title">Weekly Word Cloud</h1>
     <p class="dashboard-subtitle">Admin can filter by year and week.</p>
 
-    <!-- ADMIN-ONLY FILTERS -->
+    <!-- ADMIN FILTERS -->
     <div id="filters" class="filter-container" style="display:none;">
       <label>Year:</label>
       <select id="yearSelect"></select>
@@ -77,6 +77,7 @@
   </div>
 
 <script>
+// ===== API SETUP =====
 const RAW_API =
   "https://script.google.com/macros/s/AKfycbwWDyuw9r1IQCWZzGBC2up3pN53X3BpjQRnCDRbZpXsmQ70UYTTjUQQUUXeR80YkqFXTg/exec";
 
@@ -86,6 +87,29 @@ function buildURL() {
   return PROXY + encodeURIComponent(RAW_API) + "&t=" + Date.now();
 }
 
+// ===== WORD CATEGORY COLORS =====
+const WORD_CATEGORIES = {
+  positive: [
+    "Motivated","Energized","Excited","Inspired","Productive",
+    "Calm","Content","Satisfied","Grateful","Hopeful",
+    "Supported","Appreciated","Confident"
+  ],
+  neutral: [
+    "Reflective","Distracted"
+  ],
+  negative: [
+    "Stressed","Overwhelmed","Tired","Frustrated","Pressured"
+  ]
+};
+
+function getWordColor(word) {
+  if (WORD_CATEGORIES.positive.includes(word)) return "#68d391"; // green
+  if (WORD_CATEGORIES.neutral.includes(word))  return "#e6d784"; // yellow
+  if (WORD_CATEGORIES.negative.includes(word)) return "#e8877e"; // red
+  return "#ffffff"; // fallback
+}
+
+// ===== STATE =====
 let allEntries = [];
 let isAdmin = localStorage.getItem("role") === "admin";
 
@@ -97,12 +121,14 @@ const filtersEl = document.getElementById("filters");
 // Show filters only for admin
 if (isAdmin) filtersEl.style.display = "flex";
 
+// Load Google Sheet Data
 async function loadData() {
   const res = await fetch(buildURL());
   allEntries = await res.json();
   console.log("Loaded entries:", allEntries);
 }
 
+// Week calculation helper
 function getCurrentISOWeek(date = new Date()) {
   date = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   const dayNum = date.getUTCDay() || 7;
@@ -121,7 +147,6 @@ function buildFilters() {
     yearSelect.appendChild(opt);
   });
 
-  // Default admin selection = current year
   const currentYear = new Date().getFullYear();
   if (years.includes(currentYear)) yearSelect.value = currentYear;
 
@@ -147,7 +172,6 @@ function updateWeekDropdown() {
     weekSelect.appendChild(opt);
   });
 
-  // Default admin = current week
   const currentWeek = getCurrentISOWeek();
   if (weeks.includes(currentWeek)) {
     weekSelect.value = currentWeek;
@@ -155,7 +179,7 @@ function updateWeekDropdown() {
 }
 
 function getFilteredEntries() {
-  if (!isAdmin) return allEntries; // non-admin sees full cloud
+  if (!isAdmin) return allEntries;
 
   const year = Number(yearSelect.value);
   const week = weekSelect.value;
@@ -220,16 +244,12 @@ function renderCloud() {
         .append("g")
         .attr("transform", `translate(${width/2},${height/2})`);
 
-      const color = d3.scaleLinear()
-        .domain([1, maxFreq])
-        .range(["#7fa9ff", "#ffb347"]);
-
       svg.selectAll("text")
         .data(words)
         .enter().append("text")
         .style("font-family", "Arial")
         .style("font-size", d => d.size + "px")
-        .style("fill", d => color(freq[d.text]))
+        .style("fill", d => getWordColor(d.text)) <!-- NEW COLOR LOGIC -->
         .attr("text-anchor", "middle")
         .attr("transform", d => `translate(${d.x},${d.y})`)
         .text(d => d.text);
@@ -251,11 +271,7 @@ document.getElementById("reloadBtn").addEventListener("click", renderCloud);
 // INITIAL LOAD
 (async function init() {
   await loadData();
-
-  if (isAdmin) {
-    buildFilters();
-  }
-
+  if (isAdmin) buildFilters();
   renderCloud();
 })();
 </script>
