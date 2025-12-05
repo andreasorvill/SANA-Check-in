@@ -7,7 +7,7 @@
 
   <link rel="stylesheet" href="styles.css">
 
-  <!-- D3 + D3-Cloud -->
+  <!-- d3 + d3-cloud -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/d3-cloud/build/d3.layout.cloud.min.js"></script>
 
@@ -25,17 +25,47 @@
       width: 100%;
       height: 100%;
     }
+
+    .filter-container {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      color: #fff;
+    }
+
+    .filter-container select {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: none;
+      background: #003d72;
+      color: white;
+      font-size: 14px;
+    }
   </style>
 </head>
 
 <body class="dashboard-body">
 
   <div class="dashboard-container">
-    
+
     <img src="images/SANA_simple.png" class="dashboard-logo" alt="SANA Logo">
-    
+
     <h1 class="dashboard-title">Weekly Word Cloud</h1>
-    <p class="dashboard-subtitle">The most frequently selected words appear largest.</p>
+    <p class="dashboard-subtitle">Admin can filter by year and week.</p>
+
+    <!-- ADMIN-ONLY FILTERS -->
+    <div id="filters" class="filter-container" style="display:none;">
+      <label>Year:</label>
+      <select id="yearSelect"></select>
+
+      <label>Week:</label>
+      <select id="weekSelect">
+        <option value="current">Current Week</option>
+        <option value="all">All Weeks</option>
+      </select>
+    </div>
 
     <div id="cloud"></div>
 
@@ -43,111 +73,192 @@
       <button class="back-btn" onclick="window.location.href='index.html'">← Back to Check-In</button>
       <button class="back-btn" id="reloadBtn" style="background:#003d72;color:#fff;">Reload</button>
     </div>
+
   </div>
 
-  <script>
-    const RAW_API =
-      "https://script.google.com/macros/s/AKfycbwWDyuw9r1IQCWZzGBC2up3pN53X3BpjQRnCDRbZpXsmQ70UYTTjUQQUUXeR80YkqFXTg/exec";
+<script>
+const RAW_API =
+  "https://script.google.com/macros/s/AKfycbwWDyuw9r1IQCWZzGBC2up3pN53X3BpjQRnCDRbZpXsmQ70UYTTjUQQUUXeR80YkqFXTg/exec";
 
-    const PROXY = "https://sana-cors-proxy.andreas-orvill.workers.dev/?url=";
+const PROXY = "https://sana-cors-proxy.andreas-orvill.workers.dev/?url=";
 
-    function buildURL() {
-      return PROXY + encodeURIComponent(RAW_API) + "&t=" + Date.now();
+function buildURL() {
+  return PROXY + encodeURIComponent(RAW_API) + "&t=" + Date.now();
+}
+
+let allEntries = [];
+let isAdmin = localStorage.getItem("role") === "admin";
+
+// DOM
+const yearSelect = document.getElementById("yearSelect");
+const weekSelect = document.getElementById("weekSelect");
+const filtersEl = document.getElementById("filters");
+
+// Show filters only for admin
+if (isAdmin) filtersEl.style.display = "flex";
+
+async function loadData() {
+  const res = await fetch(buildURL());
+  allEntries = await res.json();
+  console.log("Loaded entries:", allEntries);
+}
+
+function getCurrentISOWeek(date = new Date()) {
+  date = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = date.getUTCDay() || 7;
+  date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1));
+  return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+}
+
+function buildFilters() {
+  const years = [...new Set(allEntries.map(e => e.year))].sort();
+  yearSelect.innerHTML = "";
+  years.forEach(y => {
+    const opt = document.createElement("option");
+    opt.value = y;
+    opt.textContent = y;
+    yearSelect.appendChild(opt);
+  });
+
+  // Default admin selection = current year
+  const currentYear = new Date().getFullYear();
+  if (years.includes(currentYear)) yearSelect.value = currentYear;
+
+  updateWeekDropdown();
+}
+
+function updateWeekDropdown() {
+  const selectedYear = Number(yearSelect.value);
+  const weeks = [...new Set(allEntries
+    .filter(e => e.year === selectedYear)
+    .map(e => e.week)
+  )].sort((a,b)=>a-b);
+
+  weekSelect.innerHTML = `
+    <option value="current">Current Week</option>
+    <option value="all">All Weeks</option>
+  `;
+
+  weeks.forEach(w => {
+    const opt = document.createElement("option");
+    opt.value = w;
+    opt.textContent = "Week " + w;
+    weekSelect.appendChild(opt);
+  });
+
+  // Default admin = current week
+  const currentWeek = getCurrentISOWeek();
+  if (weeks.includes(currentWeek)) {
+    weekSelect.value = currentWeek;
+  }
+}
+
+function getFilteredEntries() {
+  if (!isAdmin) return allEntries; // non-admin sees full cloud
+
+  const year = Number(yearSelect.value);
+  const week = weekSelect.value;
+
+  return allEntries.filter(e => {
+    if (e.year !== year) return false;
+
+    if (week === "all") return true;
+    if (week === "current") {
+      return e.week === getCurrentISOWeek();
     }
 
-    async function loadDataAndRender() {
-      const DATA_URL = buildURL();
-      console.log("Fetching:", DATA_URL);
+    return e.week === Number(week);
+  });
+}
 
-      try {
-        const res = await fetch(DATA_URL);
-        const entries = await res.json();
+function renderCloud() {
+  const entries = getFilteredEntries();
 
-        console.log("Entries:", entries.length);
+  const freq = {};
+  entries.forEach(e => {
+    e.words.forEach(w => {
+      const clean = w.trim();
+      freq[clean] = (freq[clean] || 0) + 1;
+    });
+  });
 
-        // Build frequency map
-        const freq = {};
-        entries.forEach(entry => {
-          entry.words.forEach(w => {
-            if (!w) return;
-            const clean = w.trim();
-            freq[clean] = (freq[clean] || 0) + 1;
-          });
-        });
+  const cloudWords = Object.keys(freq).map(word => ({
+    text: word,
+    size: freq[word]
+  }));
 
-        console.log("Frequency map:", freq);
+  const cloudBox = document.getElementById("cloud");
+  const width = cloudBox.clientWidth;
+  const height = cloudBox.clientHeight;
 
-        const cloudWords = Object.keys(freq).map(word => ({
-          text: word,
-          size: freq[word],
-        }));
+  cloudBox.innerHTML = "";
 
-        if (!cloudWords.length) {
-          document.getElementById("cloud").innerHTML =
-            "<div style='color:#ccc;padding:18px'>No submitted words yet.</div>";
-          return;
-        }
+  if (!cloudWords.length) {
+    cloudBox.innerHTML = "<div style='color:#ccc;padding:20px'>No data for this selection.</div>";
+    return;
+  }
 
-        // D3 cloud dimensions
-        const cloudBox = document.getElementById("cloud");
-        const width = cloudBox.clientWidth;
-        const height = cloudBox.clientHeight;
+  const maxFreq = d3.max(cloudWords, d => d.size);
 
-        // Center-heavy scaling
-        const maxFreq = d3.max(cloudWords, d => d.size);
-        const fontSize = d3.scaleSqrt()
-          .domain([1, maxFreq])
-          .range([15, 90]); // min/max font size
+  const fontSize = d3.scaleSqrt()
+    .domain([1, maxFreq])
+    .range([15, 90]);
 
-        // Remove previous SVG
-        cloudBox.innerHTML = "";
+  const layout = d3.layout.cloud()
+    .size([width, height])
+    .words(cloudWords)
+    .padding(8)
+    .font("Arial")
+    .fontSize(d => fontSize(d.size))
+    .spiral("archimedean")
+    .rotate(0)
+    .on("end", words => {
+      const svg = d3.select("#cloud").append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .append("g")
+        .attr("transform", `translate(${width/2},${height/2})`);
 
-        // Create cloud layout
-        const layout = d3.layout.cloud()
-          .size([width, height])
-          .words(cloudWords)
-          .padding(8)
-          .font("Arial")
-          .fontSize(d => fontSize(d.size))
-          .spiral("archimedean")  // nice smooth expansion from center
-          .rotate(0)              // horizontal only
-          .on("end", draw);
+      const color = d3.scaleLinear()
+        .domain([1, maxFreq])
+        .range(["#7fa9ff", "#ffb347"]);
 
-        layout.start();
+      svg.selectAll("text")
+        .data(words)
+        .enter().append("text")
+        .style("font-family", "Arial")
+        .style("font-size", d => d.size + "px")
+        .style("fill", d => color(freq[d.text]))
+        .attr("text-anchor", "middle")
+        .attr("transform", d => `translate(${d.x},${d.y})`)
+        .text(d => d.text);
+    });
 
-        function draw(words) {
-          const svg = d3.select("#cloud")
-            .append("svg")
-            .attr("width", width)
-            .attr("height", height)
-            .append("g")
-            .attr("transform", `translate(${width / 2},${height / 2})`);
+  layout.start();
+}
 
-          // color scale from cool → warm
-          const color = d3.scaleLinear()
-            .domain([1, maxFreq])
-            .range(["#7fa9ff", "#ffb347"]);
+// EVENTS
+yearSelect?.addEventListener("change", () => {
+  updateWeekDropdown();
+  renderCloud();
+});
 
-          svg.selectAll("text")
-            .data(words)
-            .enter().append("text")
-            .style("font-family", "Arial")
-            .style("font-size", d => d.size + "px")
-            .style("fill", d => color(freq[d.text]))
-            .attr("text-anchor", "middle")
-            .attr("transform", d => `translate(${d.x},${d.y})`)
-            .text(d => d.text);
-        }
+weekSelect?.addEventListener("change", renderCloud);
 
-      } catch (err) {
-        console.error("Error loading cloud:", err);
-      }
-    }
+document.getElementById("reloadBtn").addEventListener("click", renderCloud);
 
-    loadDataAndRender();
+// INITIAL LOAD
+(async function init() {
+  await loadData();
 
-    document.getElementById("reloadBtn").addEventListener("click", loadDataAndRender);
-  </script>
+  if (isAdmin) {
+    buildFilters();
+  }
+
+  renderCloud();
+})();
+</script>
 
 </body>
 </html>
