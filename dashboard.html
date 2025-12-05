@@ -134,16 +134,19 @@ canvas.style.margin = "0 auto";
 
 cloudEl.appendChild(canvas);
 
-        WordCloud(canvas, {
-          list: list,
-          gridSize: Math.round(14 * (canvas.width / 800)),
-          weightFactor: (word, weight) => weight,
-          fontFamily: "Arial, sans-serif",
-          color: word => colorForCount(freq[word]),
-          rotateRatio: 0.08,
-          rotationSteps: 2,
-          backgroundColor: "transparent"
-        });
+WordCloud(canvas, {
+  list: list,
+  gridSize: 18,
+  weightFactor: (word, size) => size,
+  fontFamily: "Arial, sans-serif",
+  color: word => colorForCount(freq[word]),
+  rotateRatio: 0,            // ← disables rotation COMPLETELY
+  rotationSteps: 0,          // ← WordCloud won't calculate angled boxes
+  backgroundColor: "transparent",
+  drawOutOfBound: false,
+  shrinkToFit: true,         // ← prevents invalid x/y ranges
+  shape: "circle"            // ← circle avoids negative coordinates
+});
 
       } catch (err) {
         console.error("Error loading cloud:", err);
